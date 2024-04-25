@@ -4,28 +4,30 @@ File: Server.js
 Description: Web API scaffolding for Movie API
  */
 
-var express = require('express');
-var bodyParser = require('body-parser');
-var passport = require('passport');
-var authController = require('./auth');
-var authJwtController = require('./auth_jwt');
-var jwt = require('jsonwebtoken');
-var cors = require('cors');
-var User = require('./Users');
-var Movie = require('./Movies');
-var Review = require('./Reviews');
+require('dotenv').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const passport = require('passport');
+const authController = require('./auth');
+const authJwtController = require('./auth_jwt');
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const User = require('./Users');
+const Movie = require('./Movies');
+const Review = require('./Reviews');
+const res = require("express/lib/response");
 
-var app = express();
+const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(passport.initialize());
 
-var router = express.Router();
+const router = express.Router();
 
 function getJSONObjectForMovieRequirement(req) {
-    var json = {
+    const json = {
         headers: "No headers",
         key: process.env.UNIQUE_KEY,
         body: "No body"
@@ -46,7 +48,7 @@ router.post('/signup', function(req, res) {
     if (!req.body.username || !req.body.password) {
         res.json({success: false, msg: 'Please include both username and password to signup.'})
     } else {
-        var user = new User();
+        const user = new User();
         user.name = req.body.name;
         user.username = req.body.username;
         user.password = req.body.password;
@@ -65,7 +67,7 @@ router.post('/signup', function(req, res) {
 });
 
 router.post('/signin', function (req, res) {
-    var userNew = new User();
+    const userNew = new User();
     userNew.username = req.body.username;
     userNew.password = req.body.password;
 
@@ -76,8 +78,8 @@ router.post('/signin', function (req, res) {
 
         user.comparePassword(userNew.password, function(isMatch) {
             if (isMatch) {
-                var userToken = { id: user.id, username: user.username };
-                var token = jwt.sign(userToken, process.env.SECRET_KEY);
+                const userToken = {id: user.id, username: user.username};
+                const token = jwt.sign(userToken, process.env.SECRET_KEY);
                 res.json ({success: true, token: 'JWT ' + token});
             }
             else {
@@ -86,6 +88,76 @@ router.post('/signin', function (req, res) {
         })
     })
 });
+
+router.route('/movies')
+    .all(passport.authenticate('jwt', {session : false}))
+    .get(function(req, res) {
+        if (req.query.reviews === 'true') {
+            Movies.aggregate([
+                /*
+                {
+                    $match: { _id: orderId } // replace orderId with the actual order id
+                },
+                 */
+
+                {
+                    $lookup: {
+                        from: "Review", // name of the foreign collection
+                        localField: "_id", // field in the orders collection
+                        foreignField: "movieId", // field in the items collection
+                        as: "Reviews" // output array where the joined items will be placed
+                    }
+                }
+            ]).exec(function(err, result) {
+                if (err) {
+                    // handle error
+                    if (err)
+                        res.status(500).send({success: false, msg: 'Failed to get reviews.'});
+                } else {
+                    res.json(result);
+                    console.log(result);
+                }
+            });
+        } else {
+            Movie.find({}, function(err, result) {
+                if (err) {
+                    // handle error
+                    if (err)
+                        res.status(500).send({success: false, msg: 'Failed to get reviews.'});
+                } else {
+                    res.json(result);
+                    console.log(result);
+                }
+            })
+        }})
+
+    .post(function(req, res) {
+        const movie = new Movie(req.body);
+        movie.save((err, result) => {
+            if (err) {
+                // handle error
+                if (err)
+                    res.status(500).send({success: false, msg: 'Failed to save.'});
+            } else {
+                res.json(result);
+                console.log(result);
+            }
+        })
+    })
+
+    .put(function(req, res) {
+        /*const movie = new Movie(req.body);
+        movie.save((err, result) => {
+            if (err) {
+                // handle error
+                if (err)
+                    res.status(500).send({success: false, msg: 'Failed to save.'});
+            } else {
+                res.json(result);
+                console.log(result);
+            }
+        })*/
+    })
 
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
