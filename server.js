@@ -55,7 +55,7 @@ router.post('/signup', function(req, res) {
 
         user.save(function(err){
             if (err) {
-                if (err.code == 11000)
+                if (err.code === 11000)
                     return res.json({ success: false, message: 'A user with that username already exists.'});
                 else
                     return res.json(err);
@@ -93,7 +93,7 @@ router.route('/movies')
     .all(passport.authenticate('jwt', {session : false}))
     .get(function(req, res) {
         if (req.query.reviews === 'true') {
-            Movies.aggregate([
+            Movie.aggregate([
                 /*
                 {
                     $match: { _id: orderId } // replace orderId with the actual order id
