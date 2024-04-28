@@ -8,14 +8,15 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-const authController = require('./auth');
-const authJwtController = require('./auth_jwt');
+// const authController = require('./auth');
+// const authJwtController = require('./auth_jwt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const User = require('./Users');
 const Movie = require('./Movies');
 const Review = require('./Reviews');
-const res = require("express/lib/response");
+// const res = require("express/lib/response");
+// const mongoose = require('mongoose');
 
 const app = express();
 app.use(cors());
@@ -26,7 +27,14 @@ app.use(passport.initialize());
 
 const router = express.Router();
 
-function getJSONObjectForMovieRequirement(req) {
+/* const url = process.env.DB;
+const port = process.env.PORT || // Number;
+
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.log(err)); */
+
+/* function getJSONObjectForMovieRequirement(req) {
     const json = {
         headers: "No headers",
         key: process.env.UNIQUE_KEY,
@@ -42,7 +50,7 @@ function getJSONObjectForMovieRequirement(req) {
     }
 
     return json;
-}
+}*/
 
 router.post('/signup', function(req, res) {
     if (!req.body.username || !req.body.password) {
