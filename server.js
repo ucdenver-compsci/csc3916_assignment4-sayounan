@@ -146,18 +146,29 @@ router.route('/movies')
     })
 
     .put(function(req, res) {
-        /*const movie = new Movie(req.body);
-        movie.save((err, result) => {
+        Movie.findByIdAndUpdate(req.body._id, req.body, {new: true}, (err,
+                                                                      result) => {
             if (err) {
                 // handle error
-                if (err)
-                    res.status(500).send({success: false, msg: 'Failed to save.'});
+                res.status(500).send({success: false, msg: 'Failed to update.'});
             } else {
                 res.json(result);
                 console.log(result);
             }
-        })*/
+        });
     })
+
+    .delete(function(req, res) {
+        Movie.findByIdAndDelete(req.body._id, (err, result) => {
+            if (err) {
+                // handle error
+                res.status(500).send({success: false, msg: 'Failed to delete.'});
+            } else {
+                res.json(result);
+                console.log(result);
+            }
+        });
+    });
 
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
