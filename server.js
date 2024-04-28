@@ -168,6 +168,29 @@ router.route('/movies')
                 console.log(result);
             }
         });
+    })
+
+    .post(function(req, res) {
+        const review = new Review(req.body);
+        review.save((err, result) => {
+            if (err) {
+                res.status(500).send({success: false, msg: 'Failed to get reviews.'});
+            } else {
+                res.json(result);
+                console.log(result);
+            }
+        });
+    })
+
+    .delete(function(req, res) {
+        Review.findByIdAndDelete(req.body._id, (err, result) => {
+            if (err) {
+                res.status(500).send({success: false, msg: 'Failed to delete review.'});
+            } else {
+                res.json(result);
+                console.log(result);
+            }
+        });
     });
 
 app.use('/', router);
