@@ -8,20 +8,18 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-// const authController = require('./auth');
-// const authJwtController = require('./auth_jwt');
+const authController = require('./auth');
+const authJwtController = require('./auth_jwt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const User = require('./Users');
 const Movie = require('./Movies');
 const Review = require('./Reviews');
 const mongoose = require("mongoose");
-// const res = require("express/lib/response");
-// const mongoose = require('mongoose');
-// const ExtractJwt = require('passport-jwt').ExtractJwt;
+const res = require("express/lib/response");
 
 const app = express();
-app.use(cors());
+app.use(cors({origin: 'https://csc3916-react-sayounan.onrender.com'}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
